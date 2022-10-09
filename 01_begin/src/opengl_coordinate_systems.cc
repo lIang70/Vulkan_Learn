@@ -153,6 +153,9 @@ int main(int argc, char **argv) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindVertexArray(0);
+
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -202,9 +205,9 @@ int main(int argc, char **argv) {
         program->SetMatrix4("view", view);
 
         // render boxes
-        glBindVertexArray(VAO);
-        for (unsigned int i = 0; i < 10; i++)
-        {
+        for (unsigned int i = 0; i < 10; i++) {
+            glBindVertexArray(VAO);
+
             // calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cube_positions[i]);
@@ -213,6 +216,7 @@ int main(int argc, char **argv) {
             program->SetMatrix4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
+            glBindVertexArray(0);
         }
 
         // Check and call the event, swapping the buffer.
@@ -221,7 +225,6 @@ int main(int argc, char **argv) {
     }
 
     // Optional: de-allocate all resources once they've outlived their purpose:
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 
