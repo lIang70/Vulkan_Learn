@@ -13,6 +13,7 @@
 #define _OPENGL_PROGRAM_H_
 
 #include <string>
+#include <glm/glm.hpp>
 
 namespace opengl {
 
@@ -40,6 +41,8 @@ public:
     void SetParam1(const std::string &name, bool value) const;
     void SetParam1(const std::string &name, int value) const;
     void SetParam1(const std::string &name, float value) const;
+
+    void SetMatrix4(const std::string &name, glm::mat4 value) const;
 
     void Use();
 };

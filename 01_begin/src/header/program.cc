@@ -66,6 +66,11 @@ Program::SetParam1(const std::string &name, float value) const {
     glUniform1f(glGetUniformLocation(program_id_, name.c_str()), value);
 }
 
+void 
+Program::SetMatrix4(const std::string &name, glm::mat4 value) const {
+    glUniformMatrix4fv(glGetUniformLocation(program_id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
+}
+
 void
 Program::Use() {
     glUseProgram(program_id_);
