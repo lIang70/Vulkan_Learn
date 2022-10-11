@@ -57,3 +57,13 @@ SET_TARGET_PROPERTIES(01_opengl_coordinate_systems  PROPERTIES
                                                     RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/bin
                                                     RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL     ${CMAKE_SOURCE_DIR}/bin)
 TARGET_LINK_LIBRARIES(01_opengl_coordinate_systems PRIVATE OpenGL::GL glfw ${CMAKE_DL_LIBS})
+
+# Add the source code to the project's executable。
+ADD_EXECUTABLE(01_opengl_camera  ${HEADER_SOURCE} src/opengl_camera.cc src/glad.c)
+# Set properties: output path
+SET_TARGET_PROPERTIES(01_opengl_camera  PROPERTIES 
+                                        RUNTIME_OUTPUT_DIRECTORY_DEBUG          ${CMAKE_SOURCE_DIR}/bin
+                                        RUNTIME_OUTPUT_DIRECTORY_RELEASE        ${CMAKE_SOURCE_DIR}/bin
+                                        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/bin
+                                        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL     ${CMAKE_SOURCE_DIR}/bin)
+TARGET_LINK_LIBRARIES(01_opengl_camera PRIVATE OpenGL::GL glfw ${CMAKE_DL_LIBS})

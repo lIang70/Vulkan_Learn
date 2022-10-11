@@ -18,14 +18,82 @@
 const unsigned int g_screen_width  = 800;
 const unsigned int g_screen_height = 600;
 
-void FrameBufferSizeChangedCB(GLFWwindow* gl_window, int width, int height) {
+// camera
+glm::vec3 camera_position   = glm::vec3(0.0f, 0.0f,  3.0f);
+glm::vec3 camera_front      = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 camera_up         = glm::vec3(0.0f, 1.0f,  0.0f);
+
+// timing
+GLdouble g_delta_time = 0.0f;	// time between current frame and last frame
+GLdouble g_last_frame = 0.0f;
+
+// mouse
+GLdouble fov = 55.0f;
+
+void FrameBufferSizeChangedCB(GLFWwindow* gl_window, GLint width, GLint height) {
     // Change view port
     glViewport(0, 0, width, height);
+}
+
+void MouseCB(GLFWwindow* gl_window, GLdouble x_pos, GLdouble y_pos) {
+    // mouse global
+    static GLboolean    s_first_mouse = true;
+    static GLdouble     s_last_x = g_screen_width / 2;
+    static GLdouble     s_last_y = g_screen_height / 2;
+    static GLdouble     yaw    = 0.0;
+    static GLdouble     pitch  = 0.0;
+
+    if (s_first_mouse) {
+        s_last_x = x_pos;
+        s_last_y = y_pos;
+        s_first_mouse = false;
+    }
+    GLdouble x_offset = x_pos - s_last_x;
+    GLdouble y_offset = s_last_y - y_pos; 
+    s_last_x = x_pos;
+    s_last_y = y_pos;
+
+    GLdouble sensitivity = 0.05;
+    x_offset *= sensitivity;
+    y_offset *= sensitivity;
+
+    yaw   += x_offset;
+    pitch += y_offset;
+
+    if(pitch > 89.0f)
+        pitch = 89.0f;
+    if(pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    camera_front = glm::normalize(front);
+}
+
+void ScrollCB(GLFWwindow *gl_window, GLdouble xoffset, GLdouble yoffset) {
+    if (fov >= 1.0f && fov <= 55.0f)
+        fov -= yoffset;
+    if (fov <= 1.0f)
+        fov = 1.0f;
+    if (fov >= 55.0f)
+        fov = 55.0f;
 }
 
 void ProcessInput(GLFWwindow* gl_window) {
     if(glfwGetKey(gl_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(gl_window, true);
+    
+    float camera_speed = static_cast<float>(2.5 * g_delta_time);
+    if (glfwGetKey(gl_window, GLFW_KEY_W) == GLFW_PRESS)
+        camera_position += camera_speed * camera_front;
+    if (glfwGetKey(gl_window, GLFW_KEY_S) == GLFW_PRESS)
+        camera_position -= camera_speed * camera_front;
+    if (glfwGetKey(gl_window, GLFW_KEY_A) == GLFW_PRESS)
+        camera_position -= glm::normalize(glm::cross(camera_front, camera_up)) * camera_speed;
+    if (glfwGetKey(gl_window, GLFW_KEY_D) == GLFW_PRESS)
+        camera_position += glm::normalize(glm::cross(camera_front, camera_up)) * camera_speed;
 }
 
 int main(int argc, char **argv) {
@@ -51,9 +119,12 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    // Change view port
-    glViewport(0, 0, g_screen_width, g_screen_height);
+    glfwSetInputMode(gl_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     glfwSetFramebufferSizeCallback(gl_window, FrameBufferSizeChangedCB);
+    glfwSetCursorPosCallback(gl_window, MouseCB);
+    glfwSetScrollCallback(gl_window, ScrollCB);
+
 
     std::string running_path = getcwd(nullptr, 0);
 
@@ -64,8 +135,8 @@ int main(int argc, char **argv) {
     opengl::Program *program = opengl::Program::Create();
     {
         running_path += "/resource/";
-        opengl::Shader vertex_shader((running_path + "shader/coordinate_systems.vs").c_str(), opengl::VERTEX_SHADER);
-        opengl::Shader fragment_shader((running_path + "shader/coordinate_systems.fs").c_str(), opengl::FRAGMENT_SHADER);
+        opengl::Shader vertex_shader((running_path + "shader/camera.vs").c_str(), opengl::VERTEX_SHADER);
+        opengl::Shader fragment_shader((running_path + "shader/camera.fs").c_str(), opengl::FRAGMENT_SHADER);
 
         program->AttachShader(&vertex_shader);
         program->AttachShader(&fragment_shader);
@@ -122,7 +193,7 @@ int main(int argc, char **argv) {
         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
-    
+
     // world space positions of our cubes
     glm::vec3 cube_positions[] = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
@@ -179,14 +250,16 @@ int main(int argc, char **argv) {
     }
     stbi_image_free(data);
 
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)g_screen_width / (float)g_screen_height, 0.1f, 100.0f);
-
     program->Use();
     program->SetParam1("texture_sampler", 0);
-    program->SetMatrix4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
 
     // Check whether the GLFW is required to exit.
     while (!glfwWindowShouldClose(gl_window)) {
+        // per-frame time logic
+        float current_frame = static_cast<float>(glfwGetTime());
+        g_delta_time = current_frame - g_last_frame;
+        g_last_frame = current_frame;
+
         // Process Input
         ProcessInput(gl_window);
 
@@ -201,10 +274,12 @@ int main(int argc, char **argv) {
         program->Use();
 
         // create transformations
-        glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        glm::mat4 view = glm::mat4(1.0f);
+        view = glm::lookAt(camera_position, camera_position + camera_front, camera_up);
         // pass transformation matrices to the shader
         program->SetMatrix4("view", view);
+        glm::mat4 projection = glm::perspective(glm::radians(fov), (GLdouble)g_screen_width / (GLdouble)g_screen_height, 0.1, 100.0);
+        program->SetMatrix4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
 
         // render boxes
         for (unsigned int i = 0; i < 10; i++) {
