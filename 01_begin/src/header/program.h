@@ -26,25 +26,25 @@ private:
     Program(unsigned int program_id = 0);
 
 public:
-    static Program* Create();
+    static Program* create();
 
     ~Program();
 
-    inline bool IsValid() { return program_id_ != 0; }
+    inline bool isValid() { return program_id_ != 0; }
 
-    void CheckInfo(unsigned int name, int* params);
+    void checkInfo(unsigned int name, int* params);
 
-    void AttachShader(Shader* shader);
+    void attachShader(Shader* shader);
     
-    bool Link();
+    bool link();
 
-    void SetParam1(const std::string &name, bool value) const;
-    void SetParam1(const std::string &name, int value) const;
-    void SetParam1(const std::string &name, float value) const;
+    void setParam1(const std::string &name, bool value) const;
+    void setParam1(const std::string &name, int value) const;
+    void setParam1(const std::string &name, float value) const;
 
-    void SetMatrix4(const std::string &name, glm::mat4 value) const;
+    void setMatrix4(const std::string &name, glm::mat4 value) const;
 
-    void Use();
+    void use();
 };
 
 }

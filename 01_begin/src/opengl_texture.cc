@@ -50,16 +50,16 @@ int main(int argc, char **argv) {
     std::string running_path = getcwd(nullptr, 0);
 
     // Build and compile our shader program.
-    opengl::Program *program = opengl::Program::Create();
+    opengl::Program *program = opengl::Program::create();
     {
         running_path += "/resource/";
         opengl::Shader vertex_shader((running_path + "shader/texture.vs").c_str(), opengl::VERTEX_SHADER);
         opengl::Shader fragment_shader((running_path + "shader/texture.fs").c_str(), opengl::FRAGMENT_SHADER);
 
-        program->AttachShader(&vertex_shader);
-        program->AttachShader(&fragment_shader);
+        program->attachShader(&vertex_shader);
+        program->attachShader(&fragment_shader);
     }
-    if (!program->Link())
+    if (!program->link())
         return -1;
 
     // Set up vertex data (and buffer(s)) and configure vertex attributes
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     stbi_image_free(data);
-    program->SetParam1("texture_sampler", 0);
+    program->setParam1("texture_sampler", 0);
 
     // Check whether the GLFW is required to exit.
     while (!glfwWindowShouldClose(gl_window)) {
@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
         glBindTexture(GL_TEXTURE_2D, texture);
 
         // Use program
-        program->Use();
+        program->use();
         // Seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

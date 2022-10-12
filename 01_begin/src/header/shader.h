@@ -29,7 +29,7 @@ public:
     Shader(const char *file_path, ShaderType type = FRAGMENT_SHADER);
     ~Shader();
 
-    inline bool CompileSucCess() { return compile_success_ != 0; }
+    inline bool compileSuccess() { return compile_success_ != 0; }
 };
 
 }

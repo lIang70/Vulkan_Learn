@@ -47,17 +47,17 @@ int main(int argc, char **argv) {
     glfwSetFramebufferSizeCallback(gl_window, FrameBufferSizeChangedCB);
 
     // Build and compile our shader program.
-    opengl::Program *program = opengl::Program::Create();
+    opengl::Program *program = opengl::Program::create();
     {
         std::string running_path = getcwd(nullptr, 0);
         running_path += "/resource/shader/";
         opengl::Shader vertex_shader((running_path + "triangle.vs").c_str(), opengl::VERTEX_SHADER);
         opengl::Shader fragment_shader((running_path + "triangle.fs").c_str(), opengl::FRAGMENT_SHADER);
 
-        program->AttachShader(&vertex_shader);
-        program->AttachShader(&fragment_shader);
+        program->attachShader(&vertex_shader);
+        program->attachShader(&fragment_shader);
     }
-    if (!program->Link())
+    if (!program->link())
         return -1;
 
     // Set up vertex data (and buffer(s)) and configure vertex attributes
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Use program.
-        program->Use();
+        program->use();
 
         // Seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glBindVertexArray(VAO);

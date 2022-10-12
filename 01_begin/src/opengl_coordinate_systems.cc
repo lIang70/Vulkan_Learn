@@ -61,16 +61,16 @@ int main(int argc, char **argv) {
     glEnable(GL_DEPTH_TEST);
 
     // Build and compile our shader program.
-    opengl::Program *program = opengl::Program::Create();
+    opengl::Program *program = opengl::Program::create();
     {
         running_path += "/resource/";
         opengl::Shader vertex_shader((running_path + "shader/coordinate_systems.vs").c_str(), opengl::VERTEX_SHADER);
         opengl::Shader fragment_shader((running_path + "shader/coordinate_systems.fs").c_str(), opengl::FRAGMENT_SHADER);
 
-        program->AttachShader(&vertex_shader);
-        program->AttachShader(&fragment_shader);
+        program->attachShader(&vertex_shader);
+        program->attachShader(&fragment_shader);
     }
-    if (!program->Link())
+    if (!program->link())
         return -1;
 
     // Set up vertex data (and buffer(s)) and configure vertex attributes
@@ -181,9 +181,9 @@ int main(int argc, char **argv) {
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)g_screen_width / (float)g_screen_height, 0.1f, 100.0f);
 
-    program->Use();
-    program->SetParam1("texture_sampler", 0);
-    program->SetMatrix4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
+    program->use();
+    program->setParam1("texture_sampler", 0);
+    program->setMatrix4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
 
     // Check whether the GLFW is required to exit.
     while (!glfwWindowShouldClose(gl_window)) {
@@ -198,13 +198,13 @@ int main(int argc, char **argv) {
         glBindTexture(GL_TEXTURE_2D, texture);
 
         // Use program
-        program->Use();
+        program->use();
 
         // create transformations
         glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
         view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         // pass transformation matrices to the shader
-        program->SetMatrix4("view", view);
+        program->setMatrix4("view", view);
 
         // render boxes
         for (unsigned int i = 0; i < 10; i++) {
@@ -215,7 +215,7 @@ int main(int argc, char **argv) {
             model = glm::translate(model, cube_positions[i]);
             float angle = 20.0f * i;
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            program->SetMatrix4("model", model);
+            program->setMatrix4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);

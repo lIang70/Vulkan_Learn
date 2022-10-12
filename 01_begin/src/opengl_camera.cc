@@ -132,16 +132,16 @@ int main(int argc, char **argv) {
     glEnable(GL_DEPTH_TEST);
 
     // Build and compile our shader program.
-    opengl::Program *program = opengl::Program::Create();
+    opengl::Program *program = opengl::Program::create();
     {
         running_path += "/resource/";
         opengl::Shader vertex_shader((running_path + "shader/camera.vs").c_str(), opengl::VERTEX_SHADER);
         opengl::Shader fragment_shader((running_path + "shader/camera.fs").c_str(), opengl::FRAGMENT_SHADER);
 
-        program->AttachShader(&vertex_shader);
-        program->AttachShader(&fragment_shader);
+        program->attachShader(&vertex_shader);
+        program->attachShader(&fragment_shader);
     }
-    if (!program->Link())
+    if (!program->link())
         return -1;
 
     // Set up vertex data (and buffer(s)) and configure vertex attributes
@@ -250,8 +250,8 @@ int main(int argc, char **argv) {
     }
     stbi_image_free(data);
 
-    program->Use();
-    program->SetParam1("texture_sampler", 0);
+    program->use();
+    program->setParam1("texture_sampler", 0);
 
     // Check whether the GLFW is required to exit.
     while (!glfwWindowShouldClose(gl_window)) {
@@ -271,15 +271,15 @@ int main(int argc, char **argv) {
         glBindTexture(GL_TEXTURE_2D, texture);
 
         // Use program
-        program->Use();
+        program->use();
 
         // create transformations
         glm::mat4 view = glm::mat4(1.0f);
         view = glm::lookAt(camera_position, camera_position + camera_front, camera_up);
         // pass transformation matrices to the shader
-        program->SetMatrix4("view", view);
+        program->setMatrix4("view", view);
         glm::mat4 projection = glm::perspective(glm::radians(fov), (GLdouble)g_screen_width / (GLdouble)g_screen_height, 0.1, 100.0);
-        program->SetMatrix4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
+        program->setMatrix4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
 
         // render boxes
         for (unsigned int i = 0; i < 10; i++) {
@@ -290,7 +290,7 @@ int main(int argc, char **argv) {
             model = glm::translate(model, cube_positions[i]);
             float angle = 20.0f * i;
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            program->SetMatrix4("model", model);
+            program->setMatrix4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
