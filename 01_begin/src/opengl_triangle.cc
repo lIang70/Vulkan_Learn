@@ -9,12 +9,12 @@
 #include <string>
 #include <unistd.h>
 
-void FrameBufferSizeChangedCB(GLFWwindow* gl_window, int width, int height) {
+void frameBufferSizeChangedCallBack(GLFWwindow* gl_window, int width, int height) {
     // Change view port
     glViewport(0, 0, width, height);
 }
 
-void ProcessInput(GLFWwindow* gl_window) {
+void processInput(GLFWwindow* gl_window) {
     if(glfwGetKey(gl_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(gl_window, true);
 }
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 
     // Change view port
     glViewport(0, 0, 800, 600);
-    glfwSetFramebufferSizeCallback(gl_window, FrameBufferSizeChangedCB);
+    glfwSetFramebufferSizeCallback(gl_window, frameBufferSizeChangedCallBack);
 
     // Build and compile our shader program.
     opengl::Program *program = opengl::Program::create();
@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
     // Check whether the GLFW is required to exit.
     while (!glfwWindowShouldClose(gl_window)) {
         // Process Input
-        ProcessInput(gl_window);
+        processInput(gl_window);
 
         // Render background
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

@@ -3,12 +3,12 @@
 
 #include <iostream>
 
-void FrameBufferSizeChangedCB(GLFWwindow* window, int width, int height) {
+void frameBufferSizeChangedCallBack(GLFWwindow* window, int width, int height) {
     // Change view port
     glViewport(0, 0, width, height);
 }
 
-void ProcessInput(GLFWwindow* window) {
+void processInput(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
@@ -38,12 +38,12 @@ int main(int argc, char **argv) {
 
     // Change view port
     glViewport(0, 0, 800, 600);
-    glfwSetFramebufferSizeCallback(window, FrameBufferSizeChangedCB);
+    glfwSetFramebufferSizeCallback(window, frameBufferSizeChangedCallBack);
 
     // Check whether the GLFW is required to exit.
     while (!glfwWindowShouldClose(window)) {
         // Process Input
-        ProcessInput(window);
+        processInput(window);
 
         // Render 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
